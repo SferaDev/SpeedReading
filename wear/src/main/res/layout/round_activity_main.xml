@@ -13,5 +13,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:fontFamily="sans-serif-light"
+        android:text="Touch to Start!"
         android:textSize="25dp" />
 </RelativeLayout>

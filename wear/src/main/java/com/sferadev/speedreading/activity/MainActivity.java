@@ -20,8 +20,10 @@ import static com.sferadev.speedreading.utils.PreferenceUtils.*;
 public class MainActivity extends Activity implements OnTouchListener{
     private TextView mTextView;
 
-    private boolean workState;
-    private int pos = 0;
+    private boolean workState = true;
+    private int pos = -1;
+
+    private long lastTouch = 0;
 
     private static String KEY_SPEED = "speed";
 
@@ -41,14 +43,17 @@ public class MainActivity extends Activity implements OnTouchListener{
         stub.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (workState) {
-                    workState = false;
-                } else {
-                    workState = true;
-                    updateText();
+                if (lastTouch == 0 || (System.currentTimeMillis() - lastTouch) > 350) {
+                    if (workState) {
+                        workState = false;
+                    } else {
+                        workState = true;
+                        updateText();
+                    }
                 }
             }
         });
+        workState = true;
         updateText();
     }
 
@@ -79,7 +84,7 @@ public class MainActivity extends Activity implements OnTouchListener{
                                     Log.d("SpeedReading", "Position: " + String.valueOf(pos));
                                 }
                             });
-                            sleep(getPreference(KEY_SPEED, 1000));
+                            sleep(getPreference(KEY_SPEED, 800));
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -99,9 +104,10 @@ public class MainActivity extends Activity implements OnTouchListener{
         MotionRange range = device.getMotionRange(MotionEvent.AXIS_Y);
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
             Log.d("SpeedReading", "Moved to: " + event.getY());
-            int value = Math.round(1500 * event.getY() / (range.getMax() - range.getMin() - 20));
+            int value = Math.round(1250 * event.getY() / (range.getMax() - range.getMin() - 20));
             setPreference(KEY_SPEED, value);
             Log.d("SpeedReading", "Value set: " + value);
+            lastTouch = System.currentTimeMillis();
             return true;
         }
         return false;
