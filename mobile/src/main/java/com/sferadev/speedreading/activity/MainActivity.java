@@ -1,10 +1,13 @@
 package com.sferadev.speedreading.activity;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -19,7 +22,8 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.sferadev.speedreading.R;
 
-import java.util.Random;
+import static com.sferadev.speedreading.utils.Utils.createInputDialog;
+import static com.sferadev.speedreading.utils.Utils.myDialogView;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -35,11 +39,9 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void onConnected(Bundle connectionHint) {
                         Log.d("SpeedReading", "onConnected: " + connectionHint);
-                        DataMap dataMap = new DataMap();
-                        Random rand = new Random();
-                        dataMap.putString("textString", String.valueOf(rand.nextInt()));
-                        new SendToDataLayerThread("/dataPath", dataMap).start();
+
                     }
+
                     @Override
                     public void onConnectionSuspended(int cause) {
                         Log.d("SpeedReading", "onConnectionSuspended: " + cause);
@@ -54,6 +56,16 @@ public class MainActivity extends ActionBarActivity {
                         // Request access only to the Wearable API
                 .addApi(Wearable.API)
                 .build();
+
+        createInputDialog("Send to device", new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                EditText inputText = (EditText) myDialogView.findViewById(R.id.dialog_input);
+                DataMap dataMap = new DataMap();
+                dataMap.putString("textString", inputText.getText().toString());
+                new SendToDataLayerThread("/dataPath", dataMap).start();
+            }
+        }, null);
     }
 
     @Override

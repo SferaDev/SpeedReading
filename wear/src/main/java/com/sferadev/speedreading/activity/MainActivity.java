@@ -74,17 +74,6 @@ public class MainActivity extends Activity implements DataApi.DataListener,
     }
 
     @Override
-    public void onConnected(Bundle connectionHint) {
-        Log.d("SpeedReading", "Connected to Google Api Service");
-        Wearable.DataApi.addListener(mGoogleApiClient, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d("SpeedReading", "onConnectionSuspended: " + i);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         workState = false;
@@ -98,6 +87,17 @@ public class MainActivity extends Activity implements DataApi.DataListener,
             mGoogleApiClient.disconnect();
         }
         super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.d("SpeedReading", "Connected to Google Api Service");
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d("SpeedReading", "onConnectionSuspended: " + i);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
         Log.d("SpeedReading", "Speed set: " + value);
     }
 
-    private void updateText(){
+    private void updateText() {
         try {
             Thread t = new Thread() {
                 @Override
@@ -161,7 +161,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
             };
             workState = true;
             t.start();
-        } catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             e.printStackTrace();
         }
     }
