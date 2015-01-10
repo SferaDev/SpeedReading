@@ -12,6 +12,16 @@ import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
 import com.sferadev.speedreading.R;
 
 import static com.sferadev.speedreading.utils.PreferenceUtils.getPreference;
@@ -19,7 +29,11 @@ import static com.sferadev.speedreading.utils.PreferenceUtils.setPreference;
 import static com.sferadev.speedreading.utils.Utils.KEY_SPEED;
 import static com.sferadev.speedreading.utils.Utils.KEY_TEXT_STRING;
 
-public class MainActivity extends Activity implements OnTouchListener{
+public class MainActivity extends Activity implements DataApi.DataListener,
+        ConnectionCallbacks, OnConnectionFailedListener, OnTouchListener {
+
+    GoogleApiClient mGoogleApiClient;
+
     private TextView mTextView;
 
     private boolean workState = true;
@@ -34,6 +48,12 @@ public class MainActivity extends Activity implements OnTouchListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
@@ -50,6 +70,18 @@ public class MainActivity extends Activity implements OnTouchListener{
     protected void onStart() {
         super.onStart();
         workState = true;
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.d("SpeedReading", "Connected to Google Api Service");
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d("SpeedReading", "onConnectionSuspended: " + i);
     }
 
     @Override
@@ -60,8 +92,29 @@ public class MainActivity extends Activity implements OnTouchListener{
 
     @Override
     protected void onStop() {
-        super.onStop();
         workState = false;
+        if (null != mGoogleApiClient && mGoogleApiClient.isConnected()) {
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_DELETED) {
+                Log.d("SpeedReading", "DataItem deleted: " + event.getDataItem().getUri());
+            } else if (event.getType() == DataEvent.TYPE_CHANGED) {
+                Log.d("SpeedReading", "DataItem changed: " + event.getDataItem().getUri());
+                String path = event.getDataItem().getUri().getPath();
+                if (path.equals("/dataPath")) {
+                    DataMap dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
+                    setPreference(KEY_TEXT_STRING, dataMap.getString(KEY_TEXT_STRING));
+                    Log.d("SpeedReading", "DataMap received on watch: " + dataMap);
+                }
+            }
+        }
     }
 
     private void switchState() {
@@ -144,5 +197,10 @@ public class MainActivity extends Activity implements OnTouchListener{
             }
         }
         return true;
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d("SpeedReading", "onConnectionFailed: " + connectionResult);
     }
 }
