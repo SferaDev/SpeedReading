@@ -34,6 +34,20 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        startConnection();
+
+        createInputDialog("Send to device", new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                EditText inputText = (EditText) myDialogView.findViewById(R.id.dialog_input);
+                DataMap dataMap = new DataMap();
+                dataMap.putString("textString", inputText.getText().toString());
+                new SendToDataLayerThread("/dataPath", dataMap).start();
+            }
+        }, null);
+    }
+
+    private void startConnection() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(new ConnectionCallbacks() {
                     @Override
@@ -56,16 +70,6 @@ public class MainActivity extends ActionBarActivity {
                         // Request access only to the Wearable API
                 .addApi(Wearable.API)
                 .build();
-
-        createInputDialog("Send to device", new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                EditText inputText = (EditText) myDialogView.findViewById(R.id.dialog_input);
-                DataMap dataMap = new DataMap();
-                dataMap.putString("textString", inputText.getText().toString());
-                new SendToDataLayerThread("/dataPath", dataMap).start();
-            }
-        }, null);
     }
 
     @Override
