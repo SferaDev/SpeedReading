@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="teal500">#009688</color>
+    <color name="teal700">#00796B</color>
+    <color name="teal800">#00695C</color>
+    <color name="tealA400">#1DE9B6</color>
+    <color name="white">#FFFFFF</color>
+    <color name="grey200">#EEEEEE</color>
+</resources>

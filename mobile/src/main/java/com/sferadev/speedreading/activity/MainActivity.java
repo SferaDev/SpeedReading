@@ -1,14 +1,14 @@
 package com.sferadev.speedreading.activity;
 
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.EditText;
+import android.view.View;
+import android.view.View.OnClickListener;
 
+import com.dd.processbutton.iml.SubmitProcessButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -20,12 +20,19 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.rengwuxian.materialedittext.MaterialEditText;
 import com.sferadev.speedreading.R;
-
-import static com.sferadev.speedreading.utils.Utils.createInputDialog;
-import static com.sferadev.speedreading.utils.Utils.myDialogView;
+import com.sferadev.speedreading.utils.ProgressGenerator;
 
 public class MainActivity extends ActionBarActivity {
+
+    private static String TAG = ".mobile.MainActivity";
+
+    private Toolbar toolbar;
+
+    private MaterialEditText editText;
+    private SubmitProcessButton submitButton;
+    private ProgressGenerator progressGenerator;
 
     GoogleApiClient mGoogleApiClient;
 
@@ -33,18 +40,44 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         startConnection();
 
-        createInputDialog("Send to device", new OnClickListener() {
+        editText = (MaterialEditText) findViewById(R.id.editText);
+        submitButton = (SubmitProcessButton) findViewById(R.id.submitButton);
+
+        submitButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                EditText inputText = (EditText) myDialogView.findViewById(R.id.dialog_input);
-                DataMap dataMap = new DataMap();
-                dataMap.putString("textString", inputText.getText().toString());
-                new SendToDataLayerThread("/dataPath", dataMap).start();
+            public void onClick(View v) {
+                sendText(editText.getText().toString());
             }
-        }, null);
+        });
+
+        Intent intent = getIntent();
+        Log.d(TAG, "Intent Action: " + intent.getAction());
+        Log.d(TAG, "Intent Type: " + intent.getType());
+
+        if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getType() != null) {
+            if ("text/plain".equals(intent.getType())) {
+                editText.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+                sendText(intent.getStringExtra(Intent.EXTRA_TEXT));
+            }
+        }
+
+    }
+
+    private void sendText(String text) {
+        submitButton.setProgress(1);
+        DataMap dataMap = new DataMap();
+        dataMap.putString("textString", text.replace("[ ]", "").replace("\n", " "));
+        new SendToDataLayerThread("/dataPath", dataMap).start();
+        progressGenerator = new ProgressGenerator();
+        progressGenerator.start(submitButton);
     }
 
     private void startConnection() {
@@ -52,22 +85,21 @@ public class MainActivity extends ActionBarActivity {
                 .addConnectionCallbacks(new ConnectionCallbacks() {
                     @Override
                     public void onConnected(Bundle connectionHint) {
-                        Log.d("SpeedReading", "onConnected: " + connectionHint);
+                        Log.d(TAG, "onConnected: " + connectionHint);
 
                     }
 
                     @Override
                     public void onConnectionSuspended(int cause) {
-                        Log.d("SpeedReading", "onConnectionSuspended: " + cause);
+                        Log.d(TAG, "onConnectionSuspended: " + cause);
                     }
                 })
                 .addOnConnectionFailedListener(new OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(ConnectionResult result) {
-                        Log.d("SpeedReading", "onConnectionFailed: " + result);
+                        Log.d(TAG, "onConnectionFailed: " + result);
                     }
                 })
-                        // Request access only to the Wearable API
                 .addApi(Wearable.API)
                 .build();
     }
@@ -79,25 +111,9 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     class SendToDataLayerThread extends Thread {
@@ -118,10 +134,10 @@ public class MainActivity extends ActionBarActivity {
                 PutDataRequest request = putDMR.asPutDataRequest();
                 DataApi.DataItemResult result = Wearable.DataApi.putDataItem(mGoogleApiClient, request).await();
                 if (result.getStatus().isSuccess()) {
-                    Log.v("myTag", "DataMap: " + dataMap + " sent to: " + node.getDisplayName());
+                    Log.v(TAG, "DataMap: " + dataMap + " sent to: " + node.getDisplayName());
                 } else {
                     // Log an error
-                    Log.v("myTag", "ERROR: failed to send DataMap");
+                    Log.v(TAG, "ERROR: failed to send DataMap");
                 }
             }
         }

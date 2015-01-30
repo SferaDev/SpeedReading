@@ -32,6 +32,8 @@ import static com.sferadev.speedreading.utils.Utils.KEY_TEXT_STRING;
 public class MainActivity extends Activity implements DataApi.DataListener,
         ConnectionCallbacks, OnConnectionFailedListener, OnTouchListener {
 
+    private static String TAG = ".wear.MainActivity";
+
     GoogleApiClient mGoogleApiClient;
 
     private TextView mTextView;
@@ -91,27 +93,27 @@ public class MainActivity extends Activity implements DataApi.DataListener,
 
     @Override
     public void onConnected(Bundle connectionHint) {
-        Log.d("SpeedReading", "Connected to Google Api Service");
+        Log.d(TAG, "Connected to Google Api Service");
         Wearable.DataApi.addListener(mGoogleApiClient, this);
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.d("SpeedReading", "onConnectionSuspended: " + i);
+        Log.d(TAG, "onConnectionSuspended: " + i);
     }
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_DELETED) {
-                Log.d("SpeedReading", "DataItem deleted: " + event.getDataItem().getUri());
+                Log.d(TAG, "DataItem deleted: " + event.getDataItem().getUri());
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
-                Log.d("SpeedReading", "DataItem changed: " + event.getDataItem().getUri());
+                Log.d(TAG, "DataItem changed: " + event.getDataItem().getUri());
                 String path = event.getDataItem().getUri().getPath();
                 if (path.equals("/dataPath")) {
                     DataMap dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     setPreference(KEY_TEXT_STRING, dataMap.getString(KEY_TEXT_STRING));
-                    Log.d("SpeedReading", "DataMap received on watch: " + dataMap);
+                    Log.d(TAG, "DataMap received on watch: " + dataMap);
                 }
             }
         }
@@ -128,7 +130,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
 
     private void updateSpeed(int value) {
         setPreference(KEY_SPEED, value);
-        Log.d("SpeedReading", "Speed set: " + value);
+        Log.d(TAG, "Speed set: " + value);
     }
 
     private void updateText() {
@@ -149,7 +151,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
                                         e.printStackTrace();
                                     }
                                     pos++;
-                                    Log.d("SpeedReading", "Word: " + String.valueOf(pos));
+                                    Log.d(TAG, "Word: " + String.valueOf(pos));
                                 }
                             });
                             sleep(getPreference(KEY_SPEED, 800));
@@ -174,12 +176,12 @@ public class MainActivity extends Activity implements DataApi.DataListener,
         // Check when Input starts and save the start point
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             startPoint = event.getY();
-            Log.d("SpeedReading", "Started on: " + startPoint);
+            Log.d(TAG, "Started on: " + startPoint);
         }
 
         // Check when Input point changes and calculate the reading speed
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            Log.d("SpeedReading", "Moved to: " + event.getY());
+            Log.d(TAG, "Moved to: " + event.getY());
             if (workState) {
                 lastSpeed = Math.round(1250 * event.getY() / (range.getMax() - range.getMin() - 20));
             }
@@ -188,8 +190,8 @@ public class MainActivity extends Activity implements DataApi.DataListener,
         // Check when Input ends and determine if was a speed change or click
         if (event.getAction() == MotionEvent.ACTION_UP) {
             endPoint = event.getY();
-            Log.d("SpeedReading", "Ended on: " + endPoint);
-            Log.d("SpeedReading", "Diff value: " + Math.abs(endPoint - startPoint));
+            Log.d(TAG, "Ended on: " + endPoint);
+            Log.d(TAG, "Diff value: " + Math.abs(endPoint - startPoint));
             if (Math.abs(endPoint - startPoint) > 15) {
                 updateSpeed(lastSpeed);
             } else {
@@ -201,6 +203,6 @@ public class MainActivity extends Activity implements DataApi.DataListener,
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d("SpeedReading", "onConnectionFailed: " + connectionResult);
+        Log.d(TAG, "onConnectionFailed: " + connectionResult);
     }
 }
