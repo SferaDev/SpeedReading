@@ -25,16 +25,15 @@ import com.sferadev.speedreading.R;
 import com.sferadev.speedreading.utils.ProgressGenerator;
 
 public class MainActivity extends ActionBarActivity {
-
     private static String TAG = ".mobile.MainActivity";
+
+    GoogleApiClient mGoogleApiClient;
 
     private Toolbar toolbar;
 
     private MaterialEditText editText;
     private SubmitProcessButton submitButton;
     private ProgressGenerator progressGenerator;
-
-    GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +67,18 @@ public class MainActivity extends ActionBarActivity {
                 sendText(intent.getStringExtra(Intent.EXTRA_TEXT));
             }
         }
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     private void sendText(String text) {
@@ -104,21 +114,9 @@ public class MainActivity extends ActionBarActivity {
                 .build();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
     class SendToDataLayerThread extends Thread {
-        String path;
         DataMap dataMap;
+        String path;
 
         SendToDataLayerThread(String p, DataMap data) {
             path = p;
@@ -128,7 +126,6 @@ public class MainActivity extends ActionBarActivity {
         public void run() {
             NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
             for (Node node : nodes.getNodes()) {
-
                 PutDataMapRequest putDMR = PutDataMapRequest.create(path);
                 putDMR.getDataMap().putAll(dataMap);
                 PutDataRequest request = putDMR.asPutDataRequest();

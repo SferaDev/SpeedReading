@@ -31,7 +31,6 @@ import static com.sferadev.speedreading.utils.Utils.KEY_TEXT_STRING;
 
 public class MainActivity extends Activity implements DataApi.DataListener,
         ConnectionCallbacks, OnConnectionFailedListener, OnTouchListener {
-
     private static String TAG = ".wear.MainActivity";
 
     GoogleApiClient mGoogleApiClient;
@@ -68,16 +67,49 @@ public class MainActivity extends Activity implements DataApi.DataListener,
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        workState = true;
-        mGoogleApiClient.connect();
+    public boolean onTouch(View v, MotionEvent event) {
+        InputDevice device = event.getDevice();
+        MotionRange range = device.getMotionRange(MotionEvent.AXIS_Y);
+
+        // Check when Input starts and save the start point
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            startPoint = event.getY();
+            Log.d(TAG, "Started on: " + startPoint);
+        }
+
+        // Check when Input point changes and calculate the reading speed
+        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            Log.d(TAG, "Moved to: " + event.getY());
+            if (workState) {
+                lastSpeed = Math.round(1250 * event.getY() / (range.getMax() - range.getMin() - 20));
+            }
+        }
+
+        // Check when Input ends and determine if was a speed change or click
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            endPoint = event.getY();
+            Log.d(TAG, "Ended on: " + endPoint);
+            Log.d(TAG, "Diff value: " + Math.abs(endPoint - startPoint));
+            if (Math.abs(endPoint - startPoint) > 15) {
+                updateSpeed(lastSpeed);
+            } else { // Was a click
+                switchState();
+            }
+        }
+        return true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         workState = false;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        workState = true;
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -98,7 +130,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended: " + i);
+        Log.d(TAG, "Connection to Google Api Service Suspended: " + i);
     }
 
     @Override
@@ -116,6 +148,11 @@ public class MainActivity extends Activity implements DataApi.DataListener,
                 }
             }
         }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "Connection to Google Api Service Failed: " + connectionResult);
     }
 
     private void switchState() {
@@ -165,43 +202,5 @@ public class MainActivity extends Activity implements DataApi.DataListener,
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        InputDevice device = event.getDevice();
-        MotionRange range = device.getMotionRange(MotionEvent.AXIS_Y);
-
-        // Check when Input starts and save the start point
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            startPoint = event.getY();
-            Log.d(TAG, "Started on: " + startPoint);
-        }
-
-        // Check when Input point changes and calculate the reading speed
-        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            Log.d(TAG, "Moved to: " + event.getY());
-            if (workState) {
-                lastSpeed = Math.round(1250 * event.getY() / (range.getMax() - range.getMin() - 20));
-            }
-        }
-
-        // Check when Input ends and determine if was a speed change or click
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            endPoint = event.getY();
-            Log.d(TAG, "Ended on: " + endPoint);
-            Log.d(TAG, "Diff value: " + Math.abs(endPoint - startPoint));
-            if (Math.abs(endPoint - startPoint) > 15) {
-                updateSpeed(lastSpeed);
-            } else { // Was a click
-                switchState();
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed: " + connectionResult);
     }
 }
