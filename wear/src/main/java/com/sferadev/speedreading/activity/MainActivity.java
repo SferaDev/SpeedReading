@@ -31,9 +31,9 @@ import static com.sferadev.speedreading.utils.Utils.KEY_TEXT_STRING;
 
 public class MainActivity extends Activity implements DataApi.DataListener,
         ConnectionCallbacks, OnConnectionFailedListener, OnTouchListener {
-    private static String TAG = ".wear.MainActivity";
+    private static final String TAG = ".wear.MainActivity";
 
-    GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
 
     private TextView mTextView;
 
@@ -41,7 +41,6 @@ public class MainActivity extends Activity implements DataApi.DataListener,
     private int pos = -1;
 
     private float startPoint = 0;
-    private float endPoint = 0;
     private int lastSpeed = 0;
 
     @Override
@@ -110,7 +109,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
 
         // Check when Input ends and determine if was a speed change or click
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            endPoint = event.getY();
+            float endPoint = event.getY();
             Log.d(TAG, "Ended on: " + endPoint);
             Log.d(TAG, "Diff value: " + Math.abs(endPoint - startPoint));
             if (Math.abs(endPoint - startPoint) > 15) {

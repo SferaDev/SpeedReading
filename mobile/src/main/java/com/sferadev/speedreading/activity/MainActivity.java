@@ -25,21 +25,18 @@ import com.sferadev.speedreading.R;
 import com.sferadev.speedreading.utils.ProgressGenerator;
 
 public class MainActivity extends ActionBarActivity {
-    private static String TAG = ".mobile.MainActivity";
+    private static final String TAG = ".mobile.MainActivity";
 
-    GoogleApiClient mGoogleApiClient;
-
-    private Toolbar toolbar;
+    private GoogleApiClient mGoogleApiClient;
 
     private MaterialEditText editText;
     private SubmitProcessButton submitButton;
-    private ProgressGenerator progressGenerator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -86,7 +83,7 @@ public class MainActivity extends ActionBarActivity {
         DataMap dataMap = new DataMap();
         dataMap.putString("textString", text.replace("[ ]", "").replace("\n", " "));
         new SendToDataLayerThread("/dataPath", dataMap).start();
-        progressGenerator = new ProgressGenerator();
+        ProgressGenerator progressGenerator = new ProgressGenerator();
         progressGenerator.start(submitButton);
     }
 

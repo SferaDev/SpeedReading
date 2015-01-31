@@ -11,7 +11,7 @@ import com.sferadev.speedreading.R;
 import static com.sferadev.speedreading.App.getContext;
 
 public class Utils {
-    public static View myDialogView = null;
+    private static View myDialogView = null;
 
     // Input Dialog Creation
     public static void createInputDialog(String title, OnClickListener positiveListener,

@@ -9,7 +9,7 @@ import java.util.Random;
 public class ProgressGenerator {
 
     private int mProgress;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public void start(final ProcessButton button) {
         final Handler handler = new Handler();
