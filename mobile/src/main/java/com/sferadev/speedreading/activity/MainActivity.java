@@ -62,6 +62,8 @@ public class MainActivity extends ActionBarActivity {
             if ("text/plain".equals(intent.getType())) {
                 editText.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
                 sendText(intent.getStringExtra(Intent.EXTRA_TEXT));
+            } else {
+                Log.d(TAG, getIntent().getExtras().toString());
             }
         }
     }

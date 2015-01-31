@@ -29,7 +29,7 @@
         android:layout_below="@id/textView"
         android:layout_marginBottom="15dp"
         android:fontFamily="sans-serif-light"
-        android:hint="Some weird text!"
+        android:hint="Enter text to read on your watch"
         android:textSize="27dp"
         app:baseColor="@color/white"
         app:floatingLabel="highlight"
