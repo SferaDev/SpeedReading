@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
 
     private TextView mTextView;
 
-    private boolean workState = true;
+    private boolean workState = false;
     private int pos = -1;
 
     private float startPoint = 0;
@@ -65,7 +65,6 @@ public class MainActivity extends Activity implements DataApi.DataListener,
             }
         });
         stub.setOnTouchListener(this);
-        updateText();
     }
 
     @Override
@@ -156,12 +155,12 @@ public class MainActivity extends Activity implements DataApi.DataListener,
                             });
                             sleep(getPreference(KEY_SPEED, 800));
                         }
+                        Log.d(TAG, "State: False | Out of the loop.");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             };
-            workState = true;
             t.start();
         } catch (IllegalStateException e) {
             e.printStackTrace();
@@ -194,7 +193,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
             Log.d(TAG, "Diff value: " + Math.abs(endPoint - startPoint));
             if (Math.abs(endPoint - startPoint) > 15) {
                 updateSpeed(lastSpeed);
-            } else {
+            } else { // Was a click
                 switchState();
             }
         }
