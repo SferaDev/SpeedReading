@@ -9,6 +9,7 @@ import java.util.Random;
 public class ProgressGenerator {
 
     private int mProgress;
+    private Random random = new Random();
 
     public void start(final ProcessButton button) {
         final Handler handler = new Handler();
@@ -23,8 +24,6 @@ public class ProgressGenerator {
             }
         }, generateDelay());
     }
-
-    private Random random = new Random();
 
     private int generateDelay() {
         return random.nextInt(100);

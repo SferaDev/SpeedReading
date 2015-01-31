@@ -67,6 +67,29 @@ public class MainActivity extends Activity implements DataApi.DataListener,
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        workState = true;
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        workState = false;
+    }
+
+    @Override
+    protected void onStop() {
+        workState = false;
+        if (null != mGoogleApiClient && mGoogleApiClient.isConnected()) {
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
     public boolean onTouch(View v, MotionEvent event) {
         InputDevice device = event.getDevice();
         MotionRange range = device.getMotionRange(MotionEvent.AXIS_Y);
@@ -97,29 +120,6 @@ public class MainActivity extends Activity implements DataApi.DataListener,
             }
         }
         return true;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        workState = false;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        workState = true;
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        workState = false;
-        if (null != mGoogleApiClient && mGoogleApiClient.isConnected()) {
-            Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-        super.onStop();
     }
 
     @Override
