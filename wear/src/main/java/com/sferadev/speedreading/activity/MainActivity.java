@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -55,14 +56,9 @@ public class MainActivity extends Activity implements DataApi.DataListener,
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
-        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
-            @Override
-            public void onLayoutInflated(WatchViewStub stub) {
-                mTextView = (TextView) stub.findViewById(R.id.text);
-            }
-        });
-        stub.setOnTouchListener(this);
+        mTextView = (TextView) findViewById(R.id.text);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.layout);
+        relativeLayout.setOnTouchListener(this);
     }
 
     @Override
