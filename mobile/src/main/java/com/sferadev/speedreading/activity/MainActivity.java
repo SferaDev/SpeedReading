@@ -21,6 +21,8 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.samsung.android.sdk.multiwindow.SMultiWindow;
+import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 import com.sferadev.speedreading.R;
 import com.sferadev.speedreading.utils.ProgressGenerator;
 
@@ -32,6 +34,9 @@ public class MainActivity extends ActionBarActivity {
     private MaterialEditText editText;
     private SubmitProcessButton submitButton;
 
+    private SMultiWindow mMultiWindow = null;
+    private SMultiWindowActivity mMultiWindowActivity = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +45,14 @@ public class MainActivity extends ActionBarActivity {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        try {
+            mMultiWindow = new SMultiWindow();
+            mMultiWindow.initialize(this);
+            mMultiWindowActivity = new SMultiWindowActivity(this);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         startConnection();
