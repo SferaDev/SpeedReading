@@ -18,7 +18,7 @@
         android:layout_margin="10dp"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
-        android:text="Start Reading!"
+        android:text="@string/start"
         android:textColor="@color/white"
         android:textSize="30dp" />
 
@@ -29,7 +29,7 @@
         android:layout_below="@id/textView"
         android:layout_marginBottom="15dp"
         android:fontFamily="sans-serif-light"
-        android:hint="Enter text to read on your watch"
+        android:hint="@string/enter"
         android:textSize="27dp"
         app:baseColor="@color/white"
         app:floatingLabel="highlight"
@@ -43,12 +43,12 @@
         android:layout_height="48dp"
         android:layout_below="@id/editText"
         android:fontFamily="sans-serif-light"
-        android:text="Send"
+        android:text="@string/send"
         android:textColor="@color/white"
         android:textSize="20dp"
         custom:pb_colorNormal="@color/teal500"
         custom:pb_colorPressed="@color/teal700"
-        custom:pb_textComplete="Done"
-        custom:pb_textProgress="Loading" />
+        custom:pb_textComplete="@string/done"
+        custom:pb_textProgress="@string/loading" />
 
 </RelativeLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SpeedReading</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
+    <string name="lwl">Bienvenidos a Speed Reading, un mejor enfoque de cómo se puede leer en su muñeca con un dispositivo Android Wear. Usted puede controlar la velocidad al deslizar el dedo hacia arriba y abajo. Para empezar a leer simplemente enviar el contenido deseado a través de la aplicación en su otro dispositivo.</string>
+    <string name="touch">Toque para empezar!</string>
+</resources>

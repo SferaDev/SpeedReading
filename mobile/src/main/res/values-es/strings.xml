@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Speed Reading</string>
+    <string name="start">Empieza a leer!</string>
+    <string name="enter">Introduzca el texto para leer en su reloj</string>
+    <string name="send">Enviar</string>
+    <string name="done">Hecho</string>
+    <string name="loading">Cargando</string>
+</resources>

@@ -2,5 +2,9 @@
 <resources>
 
     <string name="app_name">Speed Reading</string>
-
+    <string name="start">Start Reading!</string>
+    <string name="enter">Enter text to read on your watch</string>
+    <string name="send">Send</string>
+    <string name="done">Done</string>
+    <string name="loading">Loading</string>
 </resources>
